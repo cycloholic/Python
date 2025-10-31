@@ -29,11 +29,11 @@ Extras | Marketing content generator using same feed data
 
 ## Architecture Thoughts (Scaling to production)
 
-If this prototype grew into a real system processing thousands of SKUs/day:
 
 
--Database	      PostgreSQL or BigQuery for scale. SQLite is fine for local dev & interviews.
--Processing	    Batch ingestion (hourly / daily) or streaming with Kafka if near-real-time is needed.
--Error Handling	Store rejected records in failed_products table for manual review + alerting.
--Secrets	      DB paths & API keys in environment variables or Kubernetes secrets.
--AI Strategy	  Enrich titles, generate marketing copy, auto-fix missing metadata.
+| Task                    | Idea                                                                 |
+| ----------------------- | -------------------------------------------------------------------- |
+| Google Ads headlines    | Generate 5 ad headlines max 30 chars using product title and brand   |
+| Instagram captions      | Use product description + tone prompt                                |
+| Weekly blog outline     | Turn category list into editorial calendar                           |
+| Short-form video script | Hook → benefit bullets → CTA using product data                      |
