@@ -1,33 +1,28 @@
-What I built
+# Bonus: AI Content & Architecture Extensions
 
-FeedWizard: ETL pipeline για e-commerce feed (CSV → Polars → Pydantic validation → SQLite via SQLAlchemy ORM).
+##  AI Creative Content Use Cases
 
-Validation κανόνες: price/gtin/image/title.
+Using the extracted product feed, the system can generate:
 
-AI-first workflow: mock title improver + prompt templates για marketing περιεχόμενο.
+✅ Google Ads headlines  
+✅ Instagram captions  
+✅ Weekly blog outlines  
+✅ Short-form video scripts (TikTok / Reels / YouTube Shorts)  
 
-Extra: marketing_ai.py που επαναχρησιμοποιεί το ίδιο feed για Google Ads, Instagram captions, blog outline, video scripts.
+All content is generated based on real product fields:
+- Title
+- Category
+- Brand
+- Price
+- Description / HTML body
 
-What I’d do next (with more time)
+Outputs are created using prompt templates + a mock LLM layer.
 
-Real LLM integration (provider switch via env flag: MOCK|OPENAI|MISTRAL|OLLAMA).
+> Ready for plug-in to OpenAI / Mistral / Ollama by replacing `mock_llm()`.
 
-Async ingestion (aiohttp) + retries/backoff + circuit breakers.
+---
 
-Export to Parquet/S3 + DuckDB για analytics, ή Postgres για OLTP.
+## Architecture & Scaling Thoughts
 
-Stream processing (Kafka) για incremental updates.
+### Data Flow
 
-A/B testing σε τίτλους (LLM variants) + click-through rate feedback loop.
-
-Feature flags (e.g., “ai_title_enabled”) ανά κατηγορία.
-
-Bonus ideas
-
-SEO score per title (length, brand, modifiers) + auto-tuning.
-
-Category-aware prompting (π.χ. “Strength Training” vs “Cardio” voice).
-
-Visual creatives: image prompt stubs per product (για image gen tool).
-
-Multi-language captions (SV/EN/EL) με locale-aware hashtags.
