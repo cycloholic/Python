@@ -7,25 +7,37 @@ from sqlalchemy.orm import sessionmaker
 
 from models import Base, ProductORM, IssueORM, ProductModel
 
+
 class Database:
     def __init__(self, db_path: str):
         """
-        ⚠️ Σημαντικό: Το path/URI της βάσης είναι ευαίσθητο.
-        Σε production (π.χ. Kubernetes) πρέπει να παρέχεται από Secret/ConfigMap
-        μέσω μεταβλητής περιβάλλοντος, όχι hardcoded μέσα στο service.
+        Note:
+        The database URI/path is sensitive configuration.
+        In production (e.g., Kubernetes), this should come through environment
+        variables or Secrets/ConfigMaps — not hardcoded inside the service.
         """
         self.engine = create_engine(f"sqlite:///{db_path}", future=True)
         Base.metadata.create_all(self.engine)
         self.Session = sessionmaker(self.engine, future=True)
 
-    def save(self,
-             products: Iterable[Tuple[ProductModel, Optional[str]]],
-             issues:   Iterable[Tuple[str, str]]):
+    def save(
+        self,
+        products: Iterable[Tuple[ProductModel, Optional[str]]],
+        issues: Iterable[Tuple[str, str]]
+    ):
+        """
+        Saves validated products and any detected issues to the database.
+
+        - Uses SQLAlchemy `merge` → id-based UPSERT behavior
+        - Ensures missing product IDs are handled safely
+        - Commits once for efficiency
+        """
         with self.Session() as s:
+            # Store products (validated + optional improved title)
             for p, improved in products:
-                s.merge(  # merge για id-based upsert
+                s.merge(
                     ProductORM(
-                        id=(p.id or ""),
+                        id=(p.id or ""),  # fallback to empty string if id missing
                         title=p.title,
                         improved_title=improved,
                         description=p.description,
@@ -39,6 +51,9 @@ class Database:
                         availability=p.availability,
                     )
                 )
+
+            # Store validation issues per product
             for pid, iss in issues:
                 s.merge(IssueORM(id=(pid or ""), issue=iss))
+
             s.commit()
