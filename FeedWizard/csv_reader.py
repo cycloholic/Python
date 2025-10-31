@@ -4,9 +4,15 @@ import csv, io, requests
 from typing import List, Dict, Tuple
 
 def fetch_csv(url: str) -> Tuple[List[str], List[Dict[str, str]]]:
-    """Κατεβάζει το CSV και επιστρέφει headers + rows ως dicts.
-    - Delimiter ;  - Quote "  - Υποστηρίζει newlines μέσα σε quotes.
-    - Αν μια γραμμή έχει extra πεδία, τα ενώνει στο τελευταίο (συνήθως η περιγραφή)."""
+    """
+Downloads the CSV and returns header + row data as dictionaries.
+
+- Uses ';' as delimiter and '"' as quote character  
+- Supports newlines inside quoted fields (e.g. long HTML descriptions)  
+- If a row has more fields than expected, extra values are merged into the last column  
+  (this usually happens in the description field where HTML or text can contain commas/semicolons)
+"""
+
     r = requests.get(url, timeout=30)
     r.raise_for_status()
     text = r.content.decode("utf-8", errors="replace")
@@ -24,6 +30,6 @@ def fetch_csv(url: str) -> Tuple[List[str], List[Dict[str, str]]]:
             row = row[: expected - 1] + [';'.join(row[expected - 1:])]
         elif len(row) < expected:
             row = row + [''] * (expected - len(row))
-        item = {headers[i]: row[i] for i in range(expected)}  # range: καθαρά indices
+        item = {headers[i]: row[i] for i in range(expected)}  
         rows.append(item)
     return headers, rows
