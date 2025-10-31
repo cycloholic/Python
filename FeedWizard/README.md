@@ -27,5 +27,13 @@ Extras | Marketing content generator using same feed data
 
 ---
 
-##  Project Structure
+## Architecture Thoughts (Scaling to production)
 
+If this prototype grew into a real system processing thousands of SKUs/day:
+
+
+-Database	      PostgreSQL or BigQuery for scale. SQLite is fine for local dev & interviews.
+-Processing	    Batch ingestion (hourly / daily) or streaming with Kafka if near-real-time is needed.
+-Error Handling	Store rejected records in failed_products table for manual review + alerting.
+-Secrets	      DB paths & API keys in environment variables or Kubernetes secrets.
+-AI Strategy	  Enrich titles, generate marketing copy, auto-fix missing metadata.
